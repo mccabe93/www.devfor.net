@@ -1,0 +1,65 @@
+﻿@rendermode InteractiveServer
+
+<FluentCard Style="padding:8px;">
+    <FluentLabel Typo="Typography.H4" title="@(_fullTitle ?? Title)" Style="min-height:64px;margin-top:8px;">@(Title)</FluentLabel>   
+    <FluentDivider />
+    <FluentStack Orientation="Orientation.Vertical" Style="padding:4px"> 
+        <FluentAnchor Appearance="Appearance.Accent" Style="margin:0px" Href="@Url" Target="_blank">Read the full article</FluentAnchor>
+        <FluentStack Orientation="Orientation.Horizontal">
+            @foreach (var tag in Tags)
+            {
+                <FluentBadge Appearance="Appearance.Neutral">@tag</FluentBadge>
+            }
+        </FluentStack>        
+    </FluentStack>
+    <FluentDivider />
+    <small>@Publisher - @PublishedDate</small>
+</FluentCard>
+
+@code {
+    [Parameter]
+    public int MaximumTitleLength { get; set; } = 128;
+
+    [Parameter]
+    public string Title
+    {
+        get => field ?? "Default Title";
+        set
+        {
+            if (value.Length > MaximumTitleLength)
+            {
+                _fullTitle = value;
+                field = value.Substring(0, MaximumTitleLength - 3);
+                field += "...";
+            }
+            else
+            {
+                field = value ?? "Default Title";
+            }
+        }
+    }
+
+    [Parameter]
+    public string Publisher { get; set; } = "Default Publisher";
+
+    [Parameter]
+    public string Url { get; set; } = "https://example.com/onnx-model-summary";
+
+    [Parameter]
+    public List<string> Tags { get; set; } = new List<string>() { "example1", "example2" };
+
+    [Parameter]
+    public DateTime PublishedDate { get; set; } = DateTime.Now.AddDays(-10);
+
+    [Parameter]
+    public bool ShowTags { get; set; } = true;
+
+    private string? _fullTitle;
+
+    private bool _showFullTitle = false;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

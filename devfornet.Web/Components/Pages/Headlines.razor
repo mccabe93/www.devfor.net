@@ -1,0 +1,93 @@
+﻿@page "/news"
+@using devfornet.Web.Components.Views
+@using global::devfornet.Shared.Http.Models
+@inject ApiContentClient ContentApiClient
+@rendermode InteractiveServer
+
+<PageTitle>devfor.net - Headlines</PageTitle>
+
+<FluentHeader>Latest Headlines</FluentHeader>
+@if (_topArticles.Count == 0 && _latestArticles.Count == 0)
+{
+    <div>
+        <FluentCard Class="card-padding">
+            <FluentSkeleton Shape="SkeletonShape.Circle" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Width="75px" Height="30px" Shimmer="true"></FluentSkeleton>
+        </FluentCard>
+    </div>
+}
+else
+{
+    <FluentGrid>
+        @{
+            var topArticle = _topArticles.First();
+            <FluentGridItem xs="12">
+                <RssArticleView Publisher="@topArticle.Publisher" Title="@topArticle.Title" Url="@topArticle.Url" PublishedDate="@topArticle.PublishedDate" Tags="@topArticle.Tags" />
+            </FluentGridItem>
+        }
+        <FluentGridItem xs="12">
+            <FluentCard>
+                <FluentStack Orientation="Orientation.Horizontal">
+                    <FluentLabel Typo="Typography.H6">Latest Articles</FluentLabel>
+                    <FluentSwitch @bind-Value="_todaysArticles">Today</FluentSwitch>
+                </FluentStack>
+                <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                    @{
+                        DateTime now = DateTime.UtcNow;
+                        DateTime todayMidnight = new DateTime(now.Year, now.Month, now.Day);
+                        foreach (var article in _latestArticles)
+                        {
+                            if (((_todaysArticles && article.PublishedDate >= todayMidnight) || !_todaysArticles) &&
+                            _topArticles.Find(t => t.ContentGuid == article.ContentGuid) == null)
+                            {
+                                <div style="min-width: 400px;">
+                                    <RssArticleView MaximumTitleLength="80" Publisher="@article.Publisher" Title="@article.Title" Url="@article.Url" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                                </div>
+                            }
+                        }
+                    }
+                </FluentHorizontalScroll>
+            </FluentCard>
+        </FluentGridItem>
+        @{
+            for (int i = 1; i < _topArticles.Count; i++)
+            {
+                var article = _topArticles[i];
+                <FluentGridItem xs="6">
+                    <RssArticleView Publisher="@article.Publisher" Title="@article.Title" Url="@article.Url" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                </FluentGridItem>
+            }
+        }
+    </FluentGrid>
+}
+@code {
+    [Parameter]
+    public EventCallback OnLoad { get; set; }
+
+    private bool _todaysArticles = false;
+    private List<HttpArticle> _latestArticles { get; set; } = new List<HttpArticle>();
+    private List<HttpArticle> _topArticles { get; set; } = new List<HttpArticle>();
+    private List<HttpArticle> _articles { get; set; } = new List<HttpArticle>();
+    private int _page = 0;
+    private int _pageCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHeadlines();
+        await OnLoad.InvokeAsync();
+    }
+
+    public async Task LoadHeadlines()
+    {
+        var headlinesResponse = await ContentApiClient.GetHeadlinesAsync(3);
+        if (headlinesResponse.Success && headlinesResponse.TopRatedArticles.Count > 0 && headlinesResponse.LatestArticles.Count > 0)
+        {
+            _topArticles.AddRange(headlinesResponse.TopRatedArticles);
+            _latestArticles.AddRange(headlinesResponse.LatestArticles);
+        }
+    }
+
+}

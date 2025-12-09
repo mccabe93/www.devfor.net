@@ -1,0 +1,53 @@
+﻿@page "/privacypolicy"
+@using Blazor.Markdown
+@inject HttpClient Http
+
+<PageTitle>devfor.net - Privacy Policy</PageTitle>
+
+<FluentCard Style="height:fit-content">
+    @if (isLoading)
+    {
+        <FluentProgressRing />
+        <p>Loading Privacy Policy...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <FluentMessageBar Intent="MessageIntent.Error">
+            @errorMessage
+        </FluentMessageBar>
+    }
+    else
+    {
+        <MarkdownView Content="@markdownString" />
+    }
+</FluentCard>
+
+@code {
+    private string markdownString = string.Empty;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            markdownString = await Http.GetStringAsync("/privacy.md");
+            isLoading = false;
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = "Failed to load Privacy Policy. Please try again later.";
+            isLoading = false;
+            // Log the actual error for debugging
+            Console.WriteLine($"Error loading privacy.md: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred while loading Privacy Policy.";
+            isLoading = false;
+            Console.WriteLine($"Unexpected error loading privacy.md: {ex.Message}");
+        }
+
+        StateHasChanged();
+    }
+}

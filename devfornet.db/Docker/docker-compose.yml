@@ -1,0 +1,13 @@
+services:
+  devfornet-postgres:
+    container_name: devfornet-postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  devfornet_postgres:

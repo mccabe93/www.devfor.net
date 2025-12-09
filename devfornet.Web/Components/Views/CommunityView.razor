@@ -1,0 +1,42 @@
+﻿<FluentCard Style="padding:8px;">
+    <FluentLabel Typo="Typography.H4">@Name</FluentLabel>
+    <FluentDivider />
+    <FluentStack Orientation="Orientation.Vertical" Style="padding:4px">
+        <FluentLabel Style="min-height:48px;">@Description</FluentLabel>
+        <FluentAnchor Appearance="Appearance.Accent" Style="margin:0px" Href="@Url" Target="_blank">Visit Community</FluentAnchor>
+        <FluentStack Orientation="Orientation.Horizontal">
+            @foreach (var tag in Tags)
+            {
+                <FluentBadge Appearance="Appearance.Neutral">@tag</FluentBadge>
+            }
+        </FluentStack>
+    </FluentStack>
+</FluentCard>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = "Community Name";
+
+    [Parameter]
+    public string Description { get; set; } = "Community description";
+
+    [Parameter]
+    public string Publisher { get; set; } = "devfor.net";
+
+    [Parameter]
+    public string Url { get; set; } = "https://example.com/community";
+
+    [Parameter]
+    public List<string> Tags { get; set; } = new List<string>() { "community" };
+
+    [Parameter]
+    public DateTime PublishedDate { get; set; } = DateTime.Now.AddDays(-10);
+
+    [Parameter]
+    public int CommunityRating { get; set; } = 3;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,42 @@
+﻿@using devfornet.Shared.Http.Models
+@using devfornet.Web.Components.Views
+@rendermode InteractiveServer
+@inject ApiContentClient ContentApiClient
+
+<PageTitle>devfor.net - Articles</PageTitle>
+
+<FluentHeader>Articles by devfor.net</FluentHeader>
+@if (_loading)
+{
+    <div>
+        <FluentCard Class="card-padding">
+            <FluentSkeleton Shape="SkeletonShape.Circle" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Height="10px" Shimmer="true"></FluentSkeleton>
+            <FluentSkeleton Width="75px" Height="30px" Shimmer="true"></FluentSkeleton>
+        </FluentCard>
+    </div>
+}
+else
+{
+    <FluentStack Orientation="Orientation.Vertical" Style="padding:16px;">
+        @foreach(var article in _articles){
+            <DevForNetArticleView Title="@article.Title" MarkdownUri="@article.Url" PublishedDate="@article.PublishedDate" Publisher="@article.Publisher" Tags="@article.Tags" />
+        }
+    </FluentStack>
+}
+
+@code {
+    private bool _loading = false;
+    private List<HttpArticle> _articles = new List<HttpArticle>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await ContentApiClient.GetLatestDevForNetArticlesAsync();
+        if (response.Success)
+        {
+            _articles.AddRange(response.Articles);
+        }
+    }
+}

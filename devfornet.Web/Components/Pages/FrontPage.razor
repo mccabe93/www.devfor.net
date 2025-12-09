@@ -1,0 +1,71 @@
+﻿@page "/"
+@using devfornet.Shared.Http.Models
+@using devfornet.Shared.Models
+@using devfornet.Web.Components.Views
+@rendermode InteractiveServer
+<PageTitle>devfor.net - Latest Headlines</PageTitle>
+
+@{
+    if(_isLoading)
+    {        
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Center">
+            <img src="/devfornet.png" />
+            <FluentLabel>@_loadingMessage</FluentLabel>
+            <FluentProgress Width="300" />
+        </FluentStack>
+    }
+    else
+    {
+        <FluentTabs>
+            <FluentTab Label="Headlines">
+                <Headlines OnLoad="OnHeadlinesLoaded" />
+            </FluentTab>
+            <FluentTab Label="Repositories">
+                <Repos OnLoad="OnReposLoaded" />
+            </FluentTab>
+            <FluentTab Label="Help Wanted">
+                <HelpWanted OnLoad="OnHelpWantedLoaded" />
+            </FluentTab>
+            <FluentTab Label="devfor.net">
+                <DevForNetArticles />
+            </FluentTab>
+        </FluentTabs>
+        <FluentDivider Style="margin-top:24px;" />
+        <Communities OnLoad="OnCommunitiesLoaded" />
+    }
+}
+
+@code {
+    private bool _isLoading => _newsLoading && _reposLoading && _helpWantedLoading && _communitiesLoaded;
+    private bool _newsLoading = false;
+    private bool _reposLoading = false;
+    private bool _helpWantedLoading = false;
+    private bool _communitiesLoaded = false;
+
+    private string _loadingMessage = "Loading the latest in .NET . . .";
+
+    private async Task OnHeadlinesLoaded()
+    {
+        _newsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task OnReposLoaded()
+    {
+        _reposLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task OnHelpWantedLoaded()
+    {
+        _helpWantedLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task OnCommunitiesLoaded()
+    {
+        _communitiesLoaded = true;
+        StateHasChanged();
+    }
+
+}

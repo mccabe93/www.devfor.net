@@ -1,0 +1,66 @@
+﻿@using devfornet.Shared.Http.Models
+@using devfornet.Web.Components.Views
+@rendermode InteractiveServer
+@inject ApiContentClient ContentApiClient
+                <FluentHeader>Help Wanted Repositories</FluentHeader>
+                <FluentGrid>
+                    <FluentGridItem xs="12">
+                        <FluentCard>
+                            <FluentLabel Typo="Typography.H5">Nooby Friendly</FluentLabel>
+                            <FluentLabel>These repos are looking for help and are marked as "good-first-issue". Help out the open-source community!</FluentLabel>
+                            <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                                @{
+                                    DateTime now = DateTime.UtcNow;
+                                    DateTime todayMidnight = new DateTime(now.Year, now.Month, now.Day);
+                                    foreach (var article in _noobyHelpRepos)
+                                    {
+                                        <div style="min-width: 400px;">
+                                            <RepoView Publisher="@article.Publisher" Name="@article.Title" Url="@article.Url" Description="@article.Description" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                                        </div>
+                                    }
+                                }
+                            </FluentHorizontalScroll>
+                        </FluentCard>
+                    </FluentGridItem>
+                    <FluentGridItem xs="12">
+                        <FluentCard>
+                            <FluentLabel Typo="Typography.H5">General</FluentLabel>
+                            <FluentLabel>These repos are looking for help. Help out the open-source community!</FluentLabel>
+                            <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                                @{
+                                    DateTime now = DateTime.UtcNow;
+                                    DateTime todayMidnight = new DateTime(now.Year, now.Month, now.Day);
+                                    foreach (var article in _helpWantedRepos)
+                                    {
+                                        <div style="min-width: 400px;">
+                                            <RepoView Publisher="@article.Publisher" Name="@article.Title" Url="@article.Url" Description="@article.Description" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                                        </div>
+                                    }
+                                }
+                            </FluentHorizontalScroll>
+                        </FluentCard>
+                    </FluentGridItem>
+                </FluentGrid>
+
+@code {
+    [Parameter]
+    public EventCallback OnLoad { get; set; }
+
+    private List<HttpRepo> _noobyHelpRepos { get; set; } = new List<HttpRepo>();
+    private List<HttpRepo> _helpWantedRepos { get; set; } = new List<HttpRepo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var helpWantedRepos = await ContentApiClient.GetReposHelpWanted();
+        if (helpWantedRepos.Success)
+        {
+            _helpWantedRepos.AddRange(helpWantedRepos.LatestRepos);
+        }
+        var noobyHelpRepos = await ContentApiClient.GetReposNoobHelpWanted();
+        if (noobyHelpRepos.Success)
+        {
+            _noobyHelpRepos.AddRange(noobyHelpRepos.LatestRepos);
+        }
+        await OnLoad.InvokeAsync();
+    }
+}

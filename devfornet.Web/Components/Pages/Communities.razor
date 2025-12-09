@@ -1,0 +1,39 @@
+﻿@using devfornet.Shared.Http.Models
+@using devfornet.Web.Components.Views
+@rendermode InteractiveServer
+@inject ApiContentClient ContentApiClient
+
+<FluentHeader>.NET Communities</FluentHeader>
+<FluentGrid>
+    <FluentGridItem xs="12">
+        <FluentCard>
+            <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                @{
+                    foreach (var community in _communities)
+                    {
+                        <div style="min-width: 400px;">
+                            <CommunityView Name="@community.Title" Description="@community.Description" PublishedDate="@community.PublishedDate" Url="@community.Url" Tags="@community.Tags" />
+                        </div>
+                    }
+                }
+            </FluentHorizontalScroll>
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+    [Parameter]
+    public EventCallback OnLoad { get; set; }
+
+    private List<HttpCommunity> _communities { get; set; } = new List<HttpCommunity>();
+    protected override async Task OnInitializedAsync()
+    {
+        var lastCreatedRepos = await ContentApiClient.GetCommunitiesLatest();
+        if (lastCreatedRepos.Success)
+        {
+            _communities.AddRange(lastCreatedRepos.LatestCommunities);
+        }
+        await OnLoad.InvokeAsync();
+    }
+
+}

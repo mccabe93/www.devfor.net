@@ -1,0 +1,1 @@
+Articles pushed out are structured in the same way as a Joplin export. Each article contains a devfor.net/Pages/*.md file and a _resources folder with images and other resources used in the article.

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "devfornet.summarizer": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+﻿@using devfornet.Shared.Http.Models
+@using devfornet.Web.Components.Views
+@rendermode InteractiveServer
+@inject ApiContentClient ContentApiClient
+
+                <FluentHeader>Latest Repositories</FluentHeader>
+                <FluentGrid>
+                    <FluentGridItem xs="12">
+                        <FluentCard>
+                            <FluentLabel Typo="Typography.H5">Latest</FluentLabel>
+                            <FluentLabel>The most recently updated .NET-related repos on GitHub.</FluentLabel>
+                            <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                                @{
+                                    DateTime now = DateTime.UtcNow;
+                                    DateTime todayMidnight = new DateTime(now.Year, now.Month, now.Day);
+                                    foreach (var article in _lastUpdatedRepos)
+                                    {
+                                        <div style="min-width: 400px;">
+                                            <RepoView Publisher="@article.Publisher" Name="@article.Title" Url="@article.Url" Description="@article.Description" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                                        </div>
+                                    }
+                                }
+                            </FluentHorizontalScroll>
+                        </FluentCard>
+                    </FluentGridItem>
+                    <FluentGridItem xs="12">
+                        <FluentCard>
+                            <FluentLabel Typo="Typography.H5">Newest</FluentLabel>
+                            <FluentLabel>The newest .NET-related repos created on GitHub. Student projects, test projects and the occasional gem.</FluentLabel>
+                            <FluentHorizontalScroll Speed="600" Easing="ScrollEasing.EaseInOut" Class="both-gradient">
+                                @{
+                                    DateTime now = DateTime.UtcNow;
+                                    DateTime todayMidnight = new DateTime(now.Year, now.Month, now.Day);
+                                    foreach (var article in _latestRepos)
+                                    {
+                                        <div style="min-width: 400px;">
+                                            <RepoView Publisher="@article.Publisher" Name="@article.Title" Url="@article.Url" Description="@article.Description" PublishedDate="@article.PublishedDate" Tags="@article.Tags" />
+                                        </div>
+                                    }
+                                }
+                            </FluentHorizontalScroll>
+                        </FluentCard>
+                    </FluentGridItem>                
+                    </FluentGrid>
+
+@code {
+    [Parameter]
+    public EventCallback OnLoad { get; set; }
+
+    private List<HttpRepo> _latestRepos { get; set; } = new List<HttpRepo>();
+    private List<HttpRepo> _lastUpdatedRepos { get; set; } = new List<HttpRepo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lastCreatedRepos = await ContentApiClient.GetReposLatestCreated();
+        if (lastCreatedRepos.Success)
+        {
+            _latestRepos.AddRange(lastCreatedRepos.LatestRepos);
+        }
+        var lastUpdatedRepos = await ContentApiClient.GetReposLatestUpdated();
+        if (lastUpdatedRepos.Success)
+        {
+            _lastUpdatedRepos.AddRange(lastUpdatedRepos.LatestRepos);
+        }
+        await OnLoad.InvokeAsync();
+    }
+
+}

@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/ai.devfor.net/">
+    <Project Path="devfornet.onnx/devfornet.onnx.csproj" Id="3dd32322-8878-4e0b-b26a-ded2c38df2b2" />
+    <Project Path="devfornet.summarizer/devfornet.summarizer.csproj" Id="74b56f62-5a22-47a7-9567-d0c2a25494c6" />
+  </Folder>
+  <Folder Name="/www.devfor.net/">
+    <Project Path="devfornet.ApiService/devfornet.ApiService.csproj" />
+    <Project Path="devfornet.AppHost/devfornet.AppHost.csproj" />
+    <Project Path="devfornet.ServiceDefaults/devfornet.ServiceDefaults.csproj" />
+    <Project Path="devfornet.Web/devfornet.Web.csproj" />
+  </Folder>
+  <Project Path="devfornet.cms/devfornet.cms.csproj" Id="ae3c1e81-0fb9-494c-b780-c97cedfe3a29" />
+  <Project Path="devfornet.db/devfornet.db.csproj" />
+  <Project Path="devfornet.repos/devfornet.repos.csproj" Id="3d117e97-5942-464d-ab0c-2fdd8331d1fe" />
+  <Project Path="devfornet.rss/devfornet.rss.csproj" />
+  <Project Path="devfornet.Shared/devfornet.Shared.csproj" />
+</Solution>

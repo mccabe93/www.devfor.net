@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "devfornet.cms": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "POSTGRES_HOST": "",
+        "POSTGRES_USER": "",
+        "POSTGRES_PASSWORD": "",
+        "SSH_HOST": "",
+        "SSH_USER": "",
+        "SSH_PASSWORD": "",
+        "WWWROOT": ""
+      }
+    }
+  }
+}

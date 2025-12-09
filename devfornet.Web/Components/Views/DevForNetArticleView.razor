@@ -1,0 +1,80 @@
+﻿@using Blazor.Markdown
+@inject StaticContentClient StaticContentClient
+@rendermode InteractiveServer
+
+<FluentCard Style="padding:0px;">
+    <FluentHeader>@(Title)</FluentHeader>
+    <FluentStack Orientation="Orientation.Vertical" Style="padding:4px">
+    @if (_loading)
+    {
+        <FluentProgressRing />
+    }
+            else if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <FluentMessageBar Intent="MessageIntent.Error">
+                    @_errorMessage
+        </FluentMessageBar>
+    }
+    else
+    {
+                <MarkdownView Content="@_content" />
+    }        
+    <FluentStack Orientation="Orientation.Horizontal">
+        @foreach (var tag in Tags)
+            {
+                string trimmedTag = tag.Trim();
+                <FluentBadge Appearance="Appearance.Neutral">@trimmedTag</FluentBadge>
+            }
+        </FluentStack>
+        <small>@Publisher - @PublishedDate</small>
+    </FluentStack>
+</FluentCard>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Sample Article";
+
+    [Parameter]
+    public string Publisher { get; set; } = "mwmccabe@devfor.net";
+
+    [Parameter]
+    public string MarkdownUri { get; set; } = "sample.md";
+
+    [Parameter]
+    public List<string> Tags { get; set; } = new List<string> { "devfornet" };
+
+    [Parameter]
+    public DateTime PublishedDate { get; set; } = DateTime.Now.AddDays(-10);
+
+    [Parameter]
+    public bool ShowTags { get; set; } = true;
+
+    private bool _loading = true;
+
+    private string _errorMessage = string.Empty;
+
+    private string _content = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _content = await StaticContentClient.GetContentAsync("Articles/" + MarkdownUri);
+            _loading = false;
+        }
+        catch (HttpRequestException ex)
+        {
+            _errorMessage = "Failed to load the article. Please try again later.";
+            _loading = false;
+            Console.WriteLine($"Error loading {MarkdownUri}: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "An unexpected error occurred while loading the article.";
+            _loading = false;
+            Console.WriteLine($"Unexpected error loading {MarkdownUri}: {ex.Message}");
+        }
+
+        StateHasChanged();
+    }
+}

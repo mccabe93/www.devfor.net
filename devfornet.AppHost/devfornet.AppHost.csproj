@@ -1,0 +1,16 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>2d224eb4-582f-4e74-ab31-51e211d06b20</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\devfornet.ApiService\devfornet.ApiService.csproj" />
+    <ProjectReference Include="..\devfornet.repos\devfornet.repos.csproj" />
+    <ProjectReference Include="..\devfornet.rss\devfornet.rss.csproj" />
+    <ProjectReference Include="..\devfornet.Web\devfornet.Web.csproj" />
+  </ItemGroup>
+</Project>

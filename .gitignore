@@ -416,3 +416,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/devfornet.onnx/models/t5-small-onnx/t5-decoder-opset17.onnx
+/devfornet.onnx/models/t5-small-onnx/t5-decoder.onnx
+/devfornet.onnx/models/t5-small-onnx/t5-encoder-opset17.onnx
+/devfornet.onnx/models/t5-small-onnx/t5-encoder.onnx
+/devfornet.AppHost/Properties/launchSettings.json

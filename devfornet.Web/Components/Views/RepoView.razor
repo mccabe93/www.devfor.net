@@ -1,0 +1,107 @@
+﻿@rendermode InteractiveServer
+
+<FluentCard Style="padding:8px;">
+    <FluentLabel Typo="Typography.H4">@Name</FluentLabel>
+    <FluentDivider />
+    <FluentStack Orientation="Orientation.Vertical" Style="padding:4px">
+        <FluentLabel>@Description</FluentLabel>
+        <FluentAnchor Appearance="Appearance.Accent" Style="margin:0px" Href="@Url" Target="_blank">View on GitHub</FluentAnchor>
+        @if (ManagedByDevForNet)
+        {
+            <FluentBadge Appearance="Appearance.Accent">Managed by devfor.net</FluentBadge>
+        }
+        <FluentStack Orientation="Orientation.Horizontal">
+            @foreach (var tag in Tags)
+            {
+                <FluentBadge Appearance="Appearance.Neutral">@tag</FluentBadge>
+            }
+        </FluentStack>
+    </FluentStack>
+    <FluentDivider />
+    <small>@Publisher - @PublishedDate</small>
+</FluentCard>
+
+@code {
+    [Parameter]
+    public int MaximumNameLength { get; set; } = 30;
+
+    [Parameter]
+    public int MaximumDescriptionLength { get; set; } = 60;
+
+    [Parameter]
+    public string Name
+    {
+        get => field ?? "Default Name";
+        set
+        {
+            if (value.Length > MaximumNameLength)
+            {
+                field = value.Substring(0, MaximumNameLength - 3);
+                field += "...";
+            }
+            else
+            {
+                field = value ?? "Default Name";
+            }        
+        }
+    }
+
+    [Parameter]
+    public string Description
+    {
+        get => field ?? "Default Description";
+        set
+        {
+            if (value.Length > MaximumDescriptionLength)
+            {
+                field = value.Substring(0, MaximumDescriptionLength - 3);
+                field += "...";
+            }
+            else
+            {
+                field = value ?? "Default Description";
+            }        
+        }
+    } 
+
+    [Parameter]
+    public string Publisher { get; set; } = "GitHub";
+
+    [Parameter]
+    public string Url { get; set; } = "https://github.com/example/repo";
+
+    [Parameter]
+    public List<string> Tags
+    {
+        get => field;
+        set
+        {
+            if(value.Count > 3)
+            {
+                field = value.Take(3).ToList();
+            }
+            else
+            {
+                if(value.Count == 0)
+                {
+                    value.Add("no-tags");
+                }
+                field = value;
+            }
+        }
+    } 
+
+    [Parameter]
+    public DateTime PublishedDate { get; set; } = DateTime.Now.AddDays(-10);
+
+    [Parameter]
+    public int RepoRating { get; set; } = 3;
+
+    [Parameter]
+    public bool ManagedByDevForNet { get; set; } = false;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}
