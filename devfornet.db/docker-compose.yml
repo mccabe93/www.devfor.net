@@ -6,8 +6,14 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     restart: unless-stopped
+    networks:
+      - devfornet-network
+
+networks:
+  devfornet-network:
+    external: true
 
 volumes:
   devfornet_postgres:

@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  rss:
+    build:
+      context: ..
+      dockerfile: devfornet.rss/Dockerfile
+    container_name: devfornet-rss
+    env_file:
+      - ../.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    networks:
+      - devfornet-network
+
+networks:
+  devfornet-network:
+    external: true

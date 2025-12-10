@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  devfornet-web:
+    build:
+      context: ..
+      dockerfile: devfornet.Web/Dockerfile
+    container_name: devfornet-web
+    env_file:
+      - ../.env
+    ports:
+      - "5200:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    networks:
+      - devfornet-network
+
+networks:
+  devfornet-network:
+    external: true

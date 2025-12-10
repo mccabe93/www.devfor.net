@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  apiservice:
+    build:
+      context: ..
+      dockerfile: devfornet.ApiService/Dockerfile
+    container_name: devfornet-apiservice
+    env_file:
+      - ../.env
+    ports:
+      - "14443:443"
+      - "14080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - devfornet-network
+
+networks:
+  devfornet-network:
+    external: true

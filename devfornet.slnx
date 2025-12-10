@@ -3,6 +3,13 @@
     <Project Path="devfornet.onnx/devfornet.onnx.csproj" Id="3dd32322-8878-4e0b-b26a-ded2c38df2b2" />
     <Project Path="devfornet.summarizer/devfornet.summarizer.csproj" Id="74b56f62-5a22-47a7-9567-d0c2a25494c6" />
   </Folder>
+  <Folder Name="/build-scripts/">
+    <File Path="down.ps1" />
+    <File Path="down.sh" />
+    <File Path="export.ps1" />
+    <File Path="up.ps1" />
+    <File Path="up.sh" />
+  </Folder>
   <Folder Name="/www.devfor.net/">
     <Project Path="devfornet.ApiService/devfornet.ApiService.csproj" />
     <Project Path="devfornet.AppHost/devfornet.AppHost.csproj" />

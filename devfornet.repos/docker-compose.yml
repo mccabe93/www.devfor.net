@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  repos:
+    build:
+      context: ..
+      dockerfile: devfornet.repos/Dockerfile
+    container_name: devfornet-repos
+    env_file:
+      - ../.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    networks:
+      - devfornet-network
+
+networks:
+  devfornet-network:
+    external: true
