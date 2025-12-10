@@ -8,9 +8,13 @@ services:
     env_file:
       - ../.env
     ports:
-      - "5200:80"
+      - "5443:8443" 
+      - "5080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=http://+:8080
+      - DEVFORNET_URI=${DEVFORNET_URI}
+      - API_BASE_URL=http://devfornet-apiservice:80
     networks:
       - devfornet-network
 

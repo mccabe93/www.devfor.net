@@ -80,6 +80,7 @@ namespace devfornet.repos
                 await _dbMutex.WaitAsync();
                 try
                 {
+                    Console.WriteLine("Checking for noob-friendly repositories needing help...");
                     string query = $"NET good-first-issues:>0 archived:false language:C# is:public";
                     var repos = await GetSearchResults(client, query, 0);
                     if (repos == null)
@@ -87,6 +88,9 @@ namespace devfornet.repos
                         continue;
                     }
                     await SaveRecordsToDatabase(repos, database, baseRecord);
+                    Console.WriteLine(
+                        "Completed checking for noob-friendly repositories needing help."
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -121,6 +125,7 @@ namespace devfornet.repos
                 await _dbMutex.WaitAsync();
                 try
                 {
+                    Console.WriteLine("Checking for repositories needing help...");
                     string query =
                         $"NET help-wanted-issues:>0 archived:false language:C# is:public";
                     var repos = await GetSearchResults(client, query, 0);
@@ -129,6 +134,7 @@ namespace devfornet.repos
                         continue;
                     }
                     await SaveRecordsToDatabase(repos, database, baseRecord);
+                    Console.WriteLine("Completed checking for repositories needing help.");
                 }
                 catch (Exception ex)
                 {
@@ -153,6 +159,7 @@ namespace devfornet.repos
                 await _dbMutex.WaitAsync();
                 try
                 {
+                    Console.WriteLine("Checking for recently updated repositories...");
                     string lastDay = DateTime.UtcNow.ToString("yyyy-MM-dd");
                     string query =
                         $"NET published:>={lastDay} archived:false language:C# is:public";
@@ -162,6 +169,7 @@ namespace devfornet.repos
                         continue;
                     }
                     await SaveRecordsToDatabase(repos, database);
+                    Console.WriteLine("Completed checking for recently updated repositories.");
                 }
                 catch (Exception ex)
                 {
@@ -186,6 +194,7 @@ namespace devfornet.repos
                 await _dbMutex.WaitAsync();
                 try
                 {
+                    Console.WriteLine("Checking for newly created repositories...");
                     string lastDay = DateTime.UtcNow.ToString("yyyy-MM-dd");
                     string query = $"NET created:>={lastDay} archived:false language:C# is:public";
                     var repos = await GetSearchResults(client, query, 0);
@@ -194,6 +203,7 @@ namespace devfornet.repos
                         continue;
                     }
                     await SaveRecordsToDatabase(repos, database);
+                    Console.WriteLine("Completed checking for newly created repositories.");
                 }
                 catch (Exception ex)
                 {
@@ -228,6 +238,7 @@ namespace devfornet.repos
             DotnetRepo? baseRecord = null
         )
         {
+            Console.WriteLine($"Found {records.TotalCount} repositories for current query.");
             foreach (var repo in records.Items)
             {
                 DotnetRepo d4netRepo = new DotnetRepo()

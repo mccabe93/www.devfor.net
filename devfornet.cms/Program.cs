@@ -1,5 +1,6 @@
 ﻿using devfornet.db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Renci.SshNet;
 using Spectre.Console;
 
@@ -19,6 +20,7 @@ namespace devfornet.cms
     /// </summary>
     internal class Program
     {
+        private static readonly IConfiguration Configuration;
         private const string RemoteResourcesFolder = "_resources";
         private const string RemoteArticlesFolder = "articles";
 
@@ -34,27 +36,22 @@ namespace devfornet.cms
 
         static Program()
         {
-            _dbHost =
-                Environment.GetEnvironmentVariable("POSTGRES_HOST")
-                ?? throw new ArgumentException("Postgres Host not defined.");
-            _dbUser =
-                Environment.GetEnvironmentVariable("POSTGRES_USER")
-                ?? throw new ArgumentException("Postgres User not defined.");
-            _dbPassword =
-                Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")
-                ?? throw new ArgumentException("Postgres Password not defined.");
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                .AddEnvironmentVariables();
 
-            _wwwroot = Environment.GetEnvironmentVariable("WWWROOT") ?? "./wwwroot";
+            Configuration = configBuilder.Build();
 
-            _sshHost =
-                Environment.GetEnvironmentVariable("SSH_HOST")
-                ?? throw new ArgumentException("SSH Host not defined.");
-            _sshUser =
-                Environment.GetEnvironmentVariable("SSH_USER")
-                ?? throw new ArgumentException("SSH User not defined.");
-            _sshPassword =
-                Environment.GetEnvironmentVariable("SSH_PASSWORD")
-                ?? throw new ArgumentException("SSH Password not defined.");
+            _dbHost = GetSetting("Postgres:Host", "POSTGRES_HOST");
+            _dbUser = GetSetting("Postgres:User", "POSTGRES_USER");
+            _dbPassword = GetSetting("Postgres:Password", "POSTGRES_PASSWORD");
+
+            _wwwroot = GetSetting("WWWROOT", "WWWROOT", "./wwwroot");
+
+            _sshHost = GetSetting("SSH:Host", "SSH_HOST");
+            _sshUser = GetSetting("SSH:User", "SSH_USER");
+            _sshPassword = GetSetting("SSH:Password", "SSH_PASSWORD");
         }
 
         static async Task Main(string[] args)
@@ -119,7 +116,7 @@ namespace devfornet.cms
             } while (cmd != CmsCommand.Exit);
         }
 
-        static async Task PushArticle(
+        private static async Task PushArticle(
             DevForNetDbContext context,
             string title,
             string article,
@@ -176,7 +173,7 @@ namespace devfornet.cms
             );
         }
 
-        public static async Task CopyFileToRemote(
+        private static async Task CopyFileToRemote(
             string localFilePath,
             string remoteHost,
             string remoteUsername,
@@ -192,6 +189,29 @@ namespace devfornet.cms
                 .Replace("\\", "/");
             client.Upload(fileStream, remoteFilePath);
             client.Disconnect();
+        }
+
+        private static string GetSetting(
+            string configKey,
+            string envKey,
+            string? defaultValue = null
+        )
+        {
+            var v = Configuration[configKey];
+            if (!string.IsNullOrEmpty(v))
+                return v;
+            v = Configuration[envKey]; // env vars may be present as their raw names
+            if (!string.IsNullOrEmpty(v))
+                return v;
+            v = Environment.GetEnvironmentVariable(envKey);
+            if (!string.IsNullOrEmpty(v))
+                return v;
+            if (defaultValue is not null)
+                return defaultValue;
+
+            throw new ArgumentException(
+                $"Configuration value for '{configKey}' or '{envKey}' not defined."
+            );
         }
     }
 }

@@ -8,10 +8,10 @@ services:
     env_file:
       - ../.env
     ports:
-      - "14443:443"
       - "14080:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=http://+:80
       - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_USER=${POSTGRES_USER}
