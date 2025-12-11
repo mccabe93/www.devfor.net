@@ -20,7 +20,7 @@ Check out the Issues tab for the current status of and any new plans for feature
 - Scoring feature. Allow users to thumb up or down any piece of content, and prioritize the content that way.
 
 ## Help Wanted: AI Model
-No, not that kind of AI notice. There is a working example of an ONNX runtime model for summarization. I could use help fixing this up! Its purpose is to summarize the articles in the RSS feed. Check out the devfornet.ai solution folder. The current methodology for large articles is to essentially summarize segments, then summarize the summarized segments, and continue to do that until our segmenets collectively can fit in the model to be summarized.
+There is a working example of an ONNX runtime model for summarization. I could use help fixing this up! Its purpose is to summarize the articles in the RSS feed. Check out the devfornet.ai solution folder. The current methodology for large articles is to essentially summarize segments, then summarize the summarized segments, and continue to do that until our segmenets collectively can fit in the model to be summarized.
 
 ## Documentation
 [Full Documentation](https://deepwiki.com/mccabe93/www.devfor.net)
