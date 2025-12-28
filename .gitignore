@@ -422,3 +422,4 @@ FodyWeavers.xsd
 /devfornet.onnx/models/t5-small-onnx/t5-encoder.onnx
 /devfornet.AppHost/Properties/launchSettings.json
 /exports
+/devfornet.cms/Properties/launchSettings.json

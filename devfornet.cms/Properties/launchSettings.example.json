@@ -3,9 +3,9 @@
     "devfornet.cms": {
       "commandName": "Project",
       "environmentVariables": {
-        "POSTGRES_HOST": "",
-        "POSTGRES_USER": "",
-        "POSTGRES_PASSWORD": "",
+        "POSTGRES_HOST": "209.46.126.141:9432",
+        "POSTGRES_USER": "devfornet",
+        "POSTGRES_PASSWORD": "M9JjelQx93tVtCn1NjNzTNJH09C",
         "SSH_HOST": "",
         "SSH_USER": "",
         "SSH_PASSWORD": "",

@@ -18,6 +18,11 @@ RUN dotnet publish "devfornet.repos.csproj" -c $BUILD_CONFIGURATION -o /app/publ
 
 FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
 WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libgssapi-krb5-2 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "devfornet.repos.dll"]

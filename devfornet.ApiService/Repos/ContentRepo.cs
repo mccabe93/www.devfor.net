@@ -12,24 +12,27 @@ namespace devfornet.ApiService.Repos
 
         public async Task<IContent?> GetContentByGuidAsync(ContentType type, string contentGuid)
         {
-            return await _contentCache.GetOrCreateAsync<IContent?>($"{type}-{contentGuid}", async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7);
-                switch(type)
+            return await _contentCache.GetOrCreateAsync<IContent?>(
+                $"{type}-{contentGuid}",
+                async entry =>
                 {
-                    case ContentType.RssArticle:
-                        return await LoadRssArticleFromDbAsync(contentGuid);
-                    case ContentType.DevForNetArticle:
-                        return await LoadDevForNetArticleFromDbAsync(contentGuid);
-                    case ContentType.Gist:
-                        return await LoadGistFromDbAsync(contentGuid);
-                    case ContentType.Community:
-                        return await LoadCommunityFromDbAsync(contentGuid);
-                    case ContentType.Repo:
-                        return await LoadRepoFromDbAsync(contentGuid);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                    switch (type)
+                    {
+                        case ContentType.RssArticle:
+                            return await LoadRssArticleFromDbAsync(contentGuid);
+                        case ContentType.DevForNetArticle:
+                            return await LoadDevForNetArticleFromDbAsync(contentGuid);
+                        case ContentType.Gist:
+                            return await LoadGistFromDbAsync(contentGuid);
+                        case ContentType.Community:
+                            return await LoadCommunityFromDbAsync(contentGuid);
+                        case ContentType.Repo:
+                            return await LoadRepoFromDbAsync(contentGuid);
+                    }
+                    return null;
                 }
-                return null;
-            });
+            );
         }
 
         private async Task<RssArticle?> LoadRssArticleFromDbAsync(string contentGuid)
@@ -43,7 +46,9 @@ namespace devfornet.ApiService.Repos
         {
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<DevForNetDbContext>();
-            return await context.DevForNetArticles.FirstOrDefaultAsync(a => a.ContentGuid == contentGuid);
+            return await context.DevForNetArticles.FirstOrDefaultAsync(a =>
+                a.ContentGuid == contentGuid
+            );
         }
 
         private async Task<Gist?> LoadGistFromDbAsync(string contentGuid)

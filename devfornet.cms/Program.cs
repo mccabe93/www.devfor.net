@@ -1,4 +1,8 @@
-﻿using devfornet.db;
+﻿using System.Diagnostics;
+using System.Formats.Tar;
+using devfornet.db;
+using Docker.DotNet;
+using Docker.DotNet.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Renci.SshNet;
@@ -22,7 +26,7 @@ namespace devfornet.cms
     {
         private static readonly IConfiguration Configuration;
         private const string RemoteResourcesFolder = "_resources";
-        private const string RemoteArticlesFolder = "articles";
+        private const string RemoteArticlesFolder = "Articles";
 
         private static readonly string _dbHost;
         private static readonly string _dbUser;
@@ -30,9 +34,9 @@ namespace devfornet.cms
 
         private static readonly string _wwwroot;
 
-        private static readonly string _sshHost;
-        private static readonly string _sshUser;
-        private static readonly string _sshPassword;
+        private static readonly string _remoteHost;
+        private static readonly string _remoteUser;
+        private static readonly string _remotePassword;
 
         static Program()
         {
@@ -49,9 +53,9 @@ namespace devfornet.cms
 
             _wwwroot = GetSetting("WWWROOT", "WWWROOT", "./wwwroot");
 
-            _sshHost = GetSetting("SSH:Host", "SSH_HOST");
-            _sshUser = GetSetting("SSH:User", "SSH_USER");
-            _sshPassword = GetSetting("SSH:Password", "SSH_PASSWORD");
+            _remoteHost = GetSetting("Remote:Host", "REMOTE_HOST");
+            _remoteUser = GetSetting("Remote:User", "REMOTE_USER");
+            _remotePassword = GetSetting("Remote:Password", "REMOTE_PASSWORD");
         }
 
         static async Task Main(string[] args)
@@ -133,9 +137,9 @@ namespace devfornet.cms
             {
                 await CopyFileToRemote(
                     mdFilePath,
-                    _sshHost,
-                    _sshUser,
-                    _sshPassword,
+                    _remoteHost,
+                    _remoteUser,
+                    _remotePassword,
                     Path.Combine(_wwwroot, RemoteArticlesFolder)
                 );
             }
@@ -154,9 +158,9 @@ namespace devfornet.cms
                 {
                     await CopyFileToRemote(
                         resourceFile,
-                        _sshHost,
-                        _sshUser,
-                        _sshPassword,
+                        _remoteHost,
+                        _remoteUser,
+                        _remotePassword,
                         Path.Combine(_wwwroot, RemoteResourcesFolder)
                     );
                 }
@@ -169,8 +173,12 @@ namespace devfornet.cms
                     Title = title,
                     MarkdownUri = article,
                     Tags = tags ?? new List<string>(),
+                    ContentType = Shared.Models.ContentType.DevForNetArticle,
+                    PublishedDate = DateTime.UtcNow,
                 }
             );
+
+            await context.SaveChangesAsync();
         }
 
         private static async Task CopyFileToRemote(
@@ -182,13 +190,32 @@ namespace devfornet.cms
             CancellationToken cancellationToken = default
         )
         {
-            using var client = new ScpClient(remoteHost, remoteUsername, remotePassword);
-            await client.ConnectAsync(cancellationToken);
-            using var fileStream = File.OpenRead(localFilePath);
-            string remoteFilePath = Path.Combine(remoteDirectory, Path.GetFileName(localFilePath))
-                .Replace("\\", "/");
-            client.Upload(fileStream, remoteFilePath);
-            client.Disconnect();
+            if (
+                !string.IsNullOrEmpty(remoteHost)
+                && remoteHost.StartsWith("docker:", StringComparison.OrdinalIgnoreCase)
+            )
+            {
+                string containerName = remoteHost.Substring("docker:".Length);
+                if (string.IsNullOrWhiteSpace(containerName))
+                    throw new ArgumentException(
+                        "Docker container name not specified in remoteHost (use 'docker:<container>')."
+                    );
+
+                await CopyFileToDocker(containerName, localFilePath, remoteDirectory);
+            }
+            else
+            {
+                using var client = new ScpClient(remoteHost, remoteUsername, remotePassword);
+                await client.ConnectAsync(cancellationToken);
+                using var fileStream = File.OpenRead(localFilePath);
+                string remoteFilePath = Path.Combine(
+                        remoteDirectory,
+                        Path.GetFileName(localFilePath)
+                    )
+                    .Replace("\\", "/");
+                client.Upload(fileStream, remoteFilePath);
+                client.Disconnect();
+            }
         }
 
         private static string GetSetting(
@@ -211,6 +238,53 @@ namespace devfornet.cms
 
             throw new ArgumentException(
                 $"Configuration value for '{configKey}' or '{envKey}' not defined."
+            );
+        }
+
+        public static async Task CopyFileToDocker(
+            string containerNameOrId,
+            string localFilePath,
+            string containerPath, // e.g. "/app/wwwroot/articles"
+            CancellationToken ct = default
+        )
+        {
+            if (!File.Exists(localFilePath))
+                throw new FileNotFoundException(localFilePath);
+
+            var dockerUri =
+                Environment.OSVersion.Platform == PlatformID.Win32NT
+                    ? new Uri("npipe://./pipe/docker_engine")
+                    : new Uri("unix:///var/run/docker.sock");
+
+            using var docker = new DockerClientConfiguration(dockerUri).CreateClient();
+
+            var containers = await docker.Containers.ListContainersAsync(
+                new ContainersListParameters { All = true },
+                ct
+            );
+            var container = containers.FirstOrDefault(c =>
+                c.ID == containerNameOrId
+                || c.Names.Any(n =>
+                    n.TrimStart('/').Equals(containerNameOrId, StringComparison.OrdinalIgnoreCase)
+                )
+            );
+            if (container == null)
+                throw new InvalidOperationException($"Container '{containerNameOrId}' not found.");
+
+            using var mem = new MemoryStream();
+            using (var tarWriter = new TarWriter(mem, TarEntryFormat.Ustar, true))
+            {
+                string entryName = Path.GetFileName(localFilePath);
+                await tarWriter.WriteEntryAsync(localFilePath, entryName);
+            }
+            mem.Seek(0, SeekOrigin.Begin);
+
+            var extractParams = new ContainerPathStatParameters { Path = containerPath };
+            await docker.Containers.ExtractArchiveToContainerAsync(
+                container.ID,
+                extractParams,
+                mem,
+                ct
             );
         }
     }
