@@ -12,14 +12,7 @@ devfor.net website source code. The best source on the internet for staying up t
 - Example of external servers for populating data which then propogate to the website.
 - Simple CLI tool for a CMS (Content Management System)
 
-## Further Work
-Check out the Issues tab for the current status of and any new plans for features.
-- Improvements to the CMS CLI are needed. Currently the tool only pushes articles. The ability to delete articles, add communities, and delete communities is planned.
-- Mobile interface needs work visually.
-- ONNX runtime model development (see the Help Wanted: AI Model below)
-- Scoring feature. Allow users to thumb up or down any piece of content, and prioritize the content that way.
-
-## Help Wanted: AI Model
+## AI Model
 There is a working example of an ONNX runtime model for summarization. I could use help fixing this up! Its purpose is to summarize the articles in the RSS feed. Check out the devfornet.ai solution folder. The current methodology for large articles is to essentially summarize segments, then summarize the summarized segments, and continue to do that until our segmenets collectively can fit in the model to be summarized.
 
 ## Documentation
